@@ -37,6 +37,10 @@ const Scriptures=(function(){
         let init;
         let initMap;
         let onHashChanged;
+        let navigateHome;
+        let navigateBook;
+        let bookChapterValid;
+        let navigateChapter;
 
        /*-----------------------------------------------------------------
         *                  PRIVATE METHODS
@@ -63,6 +67,17 @@ const Scriptures=(function(){
             request.onerror = failureCallback;
 
             request.send();
+        };
+
+        bookChapterValid= function(bookId, chapter){
+          let book= books[bookId];
+          if(book === undefined || chapter <0 || chapter> book.numChapters){
+            return false;
+          }
+          if (chapter ===0 && book.numChapters >0){
+            return false;
+          }
+          return true;
         };
 
         cacheBooks= function(callback){
@@ -120,8 +135,55 @@ const Scriptures=(function(){
           );
 
         };
+        navigateBook = function(bookId){
+          console.log("navigateBook"+ bookId);
+        };
+        navigateChapter = function(bookId, chapter){
+          console.log("navigateChapter"+ bookId +", "+ chapter);
+        };
+        navigateHome = function(volumeId){
+          document.getElementById("scriptures").innerHTML=
+          "<div> The Old Testament </div>"+
+          "<div> The New Testament </div>"+
+          "<div> Book of Mormon </div>"+
+          "<div> Doctrine and Covenants </div>"+
+          "<div> The Pearl of Great Price </div>" + volumeId;
+        };
+
         onHashChanged = function () {
+            let ids=[];
+            if (location.hash !== "" && location.hash.length >1) {
+              ids=location.hash.slice(1).split(":");
+            }
+            if (ids.length <= 0) {
+              navigateHome();
+            }else if (ids.length === 1){
+              let volumeId =Number(ids[0]);
+              if(volumeId < volumes[0].id || volumeId > volumes.slice(-1).id){
+                  navigateHome();
+              }else{
+                navigateHome(volumeId);
+              }
+            }else if(ids.length >= 2){
+              let bookId =Number(ids[1]);
+              if(books[bookId]=== undefined){
+                  navigateHome();
+              }else {
+                if(ids.length ===2){
+                  navigateBook(bookId);
+                }else{
+                  let chapter=Number(ids[2]);
+                  if(bookChapterValid(bookId, chapter)){
+                    navigateChapter(bookId, chapter);
+                  } else{
+                      navigateHome();
+                  }
+                }
+              }
+
+            }
             console.log("The hash is " + location.hash);
+
         };
        /*-----------------------------------------------------------------
         *                  PUBLIC API
