@@ -1,0 +1,51 @@
+<!doctype html>
+
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>The Scriptures Mapped</title>
+
+  <meta name="description" content="The Standard Works, Mapped">
+  <meta name="author" content="Giovanni Romero">
+  <meta name="viewport" content="view=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <!-- Favicon.ico in the root folder -->
+  <link rel="stylesheet" href="css/styles.css?v=1.0">
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1UOfJQ52f89qzEETiG7uVhh-LwR_6pzs"></script>
+  <script src="js/scriptures.js"></script>
+
+</head>
+
+<body>
+  <div id="header">
+    <div id="crumbs"></div>
+    <div id="centerhead">
+        <div id="title">The Scriptures, Mapped</div>
+        <div id="subtitle">By Gio Romero</div>
+    </div>
+  </div>
+  <div id="content">
+    <div id="scriptures"></div>
+    <div id="map"></div>
+  </div>
+
+  <script type="text/javascript">
+      function ready(fn) {
+          if (document.readyState != 'loading') {
+              fn();
+          } else {
+              document.addEventListener('DOMContentLoaded', fn);
+          }
+      }
+
+      ready(function () {
+          Scriptures.init(() => { console.log("Initialization of Scriptures is finished."); });
+          window.addEventListener("hashchange", Scriptures.onHashChanged);
+      });
+  </script>
+
+</body>
+</html>
