@@ -67,7 +67,10 @@ const Scriptures=(function(){
         let navigateBook;
         let navigateChapter;
         let navigateHome;
+        let nextChapter;
         let onHashChanged;
+        let previousChapter;
+        let titleForBookChapter;
         let volumesGridContent;
 
        /*-----------------------------------------------------------------
@@ -80,7 +83,11 @@ const Scriptures=(function(){
             request.onload = function() {
                 if (request.status >= REQUEST_STATUS_OK && request.status < REQUEST_STATUS_ERROR) {
                   // Success!
-                  let data = skipJsonParse ? request.response : JSON.parse(request.response);
+                  let data = (
+                    skipJsonParse
+                    ? request.response
+                    : JSON.parse(request.response)
+                  );
                   if(typeof successCallback==="function"){
                     successCallback(data);
                   }
@@ -295,6 +302,7 @@ const Scriptures=(function(){
 
         };
         navigateChapter = function(bookId, chapter){
+          console.log(previousChapter(bookId,chapter));
           ajax(encodedScripturesUrlParameters(bookId, chapter),getScripturesCallback,
               getScripturesFailure, true);
         };
@@ -305,6 +313,38 @@ const Scriptures=(function(){
               content: volumesGridContent(volumeId)
           });
         };
+
+        nextChapter = function (bookId, chapter) {
+            let book = books[bookId];
+
+            if(book !== undefined){
+                if(chapter< book.numChapters){
+                  return [
+                    bookId,
+                    chapter +1,
+                    titleForBookChapter(book, chapter + 1)
+                  ];
+                }
+
+              let nextBook = books[bookId+1];
+
+              if(nextBook !== undefined){
+                let nextChapterValue =0;
+
+                if(nextBook.numChapters > 0){
+                  nextChapterValue = 1;
+                }
+
+                return [
+                  nextBook.id,
+                  nextChapterValue,
+                  titleForBookChapter(nextBook, nextChapterValue)
+                ];
+              }
+          }
+
+        };
+
 
         onHashChanged = function () {
             let ids=[];
@@ -341,6 +381,45 @@ const Scriptures=(function(){
             console.log("The hash is " + location.hash);
 
         };
+        previousChapter = function (bookId, chapter) {
+            //HW IS THIS ONE
+            let book = books[bookId];
+            if(book !== undefined){
+
+                if(chapter !== 1 && chapter <= book.numChapters){
+                  console.log("inside first condition");
+                  return [
+                    bookId,
+                    chapter -1,
+                    titleForBookChapter(book, chapter - 1)
+                  ];
+                }
+              let prevBook = books[bookId-1];
+
+              if(prevBook !== undefined){
+                let prevChapterValue =0;
+
+                if(prevBook.numChapters > 0){
+                  prevChapterValue = prevBook.numChapters;
+                }
+
+                return [
+                  prevBook.id,
+                  prevChapterValue,
+                  titleForBookChapter(prevBook, prevChapterValue)
+                ];
+              }
+          }
+        };
+        titleForBookChapter = function (book, chapter) {
+            //Return a string that describes this chapter useful when hovering for a tooltip//
+            if(book !== undefined){
+                if(chapter > 0){
+                  return `${book.tocName} ${chapter}`;
+                }
+                return book.tocName;
+            }
+        }
 
         volumesGridContent = function (volumeId) {
             let gridContent = "";
