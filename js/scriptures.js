@@ -10,14 +10,16 @@
 /*jslint
   browser:true
   long: true */
-/*global console, XMLHttpRequest, google */
+/*global console, XMLHttpRequest, google, map */
 /*property
-    Map, books, center, classKey, content, exec, forEach, fullName,
-    getAttribute, getElementById, gridName, hash, href, id, init, initMap,
-    innerHTML, lat, length, lng, log, maps, maxBookId, minBookId, numChapters,
-    onHashChanged, onerror, onload, open, parse, push, querySelectorAll,
-    response, send, setMap, slice, split, status, tocName, zoom
+    Animation, DROP, Marker, animation, books, classKey, content, exec, forEach,
+    fullName, getAttribute, getElementById, gridName, hash, href, id, init,
+    innerHTML, lat, length, lng, log, map, maps, maxBookId, minBookId,
+    numChapters, onHashChanged, onerror, onload, open, parse, position, push,
+    querySelectorAll, response, send, setMap, slice, split, status, title,
+    tocName
 */
+
 const Scriptures=(function(){
   "use strict";
       /*-----------------------------------------------------------------
@@ -35,7 +37,7 @@ const Scriptures=(function(){
        const INDEX_LONGITUDE = 4;
        const INDEX_PLACENAME = 2;
        const LAT_LON_PARSER = /\((.*),'(.*)',(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),'(.*)'\)/;
-
+       const MAX_RETRY_DELAY= 5000;
        const REQUEST_GET= "GET";
        const REQUEST_STATUS_OK =200;
        const REQUEST_STATUS_ERROR = 400;
@@ -49,7 +51,7 @@ const Scriptures=(function(){
         */
         let books;
         let gmMarkers=[];
-        let map;
+        let retryDelay =500;
         let volumes;
 
        /*-----------------------------------------------------------------
@@ -88,7 +90,15 @@ const Scriptures=(function(){
         */
         addMarker = function(placename, latitude, longitude){
           console.log(placename,latitude, longitude);
+          let marker = new google.maps.Marker({
+              position: {lat: Number(latitude), lng: Number(longitude)},
+              map,
+              title: placename,
+              animation: google.maps.Animation.DROP
+          });
+          gmMarkers.push(marker);
         };
+
         ajax= function (url,successCallback, failureCallback, skipJsonParse) {
             let request = new XMLHttpRequest();
             request.open(REQUEST_GET, url, true);
@@ -275,18 +285,18 @@ const Scriptures=(function(){
           return `<a${idString}${classString}${hrefString}>${contentString}</a>`;
         };
 
-        initMap= function(){
-          console.log("hola in inimap");
-          map = new google.maps.Map(document.getElementById("map"), {
-             center: {lat: 31.778332, lng: 35.232113},
-             zoom: 10
-          });
-        };
+        // initMap= function(){
+        //   console.log("hola in inimap");
+        //   map = new google.maps.Map(document.getElementById("map"), {
+        //      center: {lat: 31.778332, lng: 35.232113},
+        //      zoom: 10
+        //   });
+        // };
 
         init = function(callback){
           let booksLoaded=false;
           let volumesLoaded=false;
-          initMap();
+          // initMap();
           ajax(URL_BOOKS,function(data){
                   // console.log("Loaded Books from Server");
                   // console.log(data);
@@ -434,6 +444,15 @@ const Scriptures=(function(){
           }
         };
         setupMarkers = function(){
+          if(window.google === undefined){
+              let retryId = window.setTimeout(setupMarkers, retryDelay);
+              retryDelay += retryDelay;
+
+              if(retryDelay > MAX_RETRY_DELAY){
+                  window.clearTimeout(retryId);
+              }
+              return;
+          }
           if (gmMarkers.length > 0) {
             clearMarker();
           }
@@ -489,7 +508,7 @@ const Scriptures=(function(){
 
         return {
           init,
-          initMap,
+          // initMap,
           onHashChanged
         };
   }())

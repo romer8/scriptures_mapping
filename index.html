@@ -14,7 +14,6 @@
   <link rel="apple-touch-icon" href="icon.png">
   <!-- Favicon.ico in the root folder -->
   <link rel="stylesheet" href="css/styles.css?v=1.0">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1UOfJQ52f89qzEETiG7uVhh-LwR_6pzs"></script>
   <script src="js/scriptures.js"></script>
 
 </head>
@@ -45,7 +44,17 @@
           Scriptures.init(() => { Scriptures.onHashChanged(); });
           window.addEventListener("hashchange", Scriptures.onHashChanged);
       });
+      let map;
+      function initMap (){
+        console.log("hola in inimap");
+        map = new google.maps.Map(document.getElementById("map"), {
+           center: {lat: 31.777444, lng: 35.234935},
+           zoom: 8
+        });
+      };
   </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1UOfJQ52f89qzEETiG7uVhh-LwR_6pzs&callback=initMap" async defer></script>
+
 
 </body>
 </html>
