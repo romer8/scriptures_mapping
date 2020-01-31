@@ -12,12 +12,12 @@
   long: true */
 /*global console, XMLHttpRequest, google */
 /*property
-    Map, books, center, classKey, content, forEach, fullName, getElementById,
-    gridName, hash, href, id, init, initMap, innerHTML, lat, length, lng, log,
-    maps, maxBookId, minBookId, numChapters, onHashChanged, onerror, onload,
-    open, parse, push, response, send, slice, split, status, zoom
+    Map, books, center, classKey, content, exec, forEach, fullName,
+    getAttribute, getElementById, gridName, hash, href, id, init, initMap,
+    innerHTML, lat, length, lng, log, maps, maxBookId, minBookId, numChapters,
+    onHashChanged, onerror, onload, open, parse, push, querySelectorAll,
+    response, send, setMap, slice, split, status, tocName, zoom
 */
-
 const Scriptures=(function(){
   "use strict";
       /*-----------------------------------------------------------------
@@ -30,6 +30,12 @@ const Scriptures=(function(){
        const CLASS_VOLUME="volumes";
        const DIV_SCRIPTURES_NAVIGATOR="scripnav";
        const DIV_SCRIPTURES="scriptures";
+       const INDEX_FLAG = 11;
+       const INDEX_LATITUDE = 3;
+       const INDEX_LONGITUDE = 4;
+       const INDEX_PLACENAME = 2;
+       const LAT_LON_PARSER = /\((.*),'(.*)',(.*),(.*),(.*),(.*),(.*),(.*),(.*),(.*),'(.*)'\)/;
+
        const REQUEST_GET= "GET";
        const REQUEST_STATUS_OK =200;
        const REQUEST_STATUS_ERROR = 400;
@@ -41,13 +47,15 @@ const Scriptures=(function(){
        /*-----------------------------------------------------------------
         *                  PRIVATE VARIABLE
         */
-        let map;
         let books;
+        let gmMarkers=[];
+        let map;
         let volumes;
 
        /*-----------------------------------------------------------------
         *                  PRIVATE METHOD DECLARATIONS
         */
+        let addMarker;
         let ajax;
         let bookChapterValid;
         let booksGrid;
@@ -55,6 +63,7 @@ const Scriptures=(function(){
         let cacheBooks;
         let chaptersGrid;
         let chaptersGridContent;
+        let clearMarker;
         let encodedScripturesUrlParameters;
         let getScripturesCallback;
         let getScripturesFailure;
@@ -70,12 +79,16 @@ const Scriptures=(function(){
         let nextChapter;
         let onHashChanged;
         let previousChapter;
+        let setupMarkers;
         let titleForBookChapter;
         let volumesGridContent;
 
        /*-----------------------------------------------------------------
         *                  PRIVATE METHODS
         */
+        addMarker = function(placename, latitude, longitude){
+          console.log(placename,latitude, longitude);
+        };
         ajax= function (url,successCallback, failureCallback, skipJsonParse) {
             let request = new XMLHttpRequest();
             request.open(REQUEST_GET, url, true);
@@ -179,6 +192,13 @@ const Scriptures=(function(){
           return gridContent;
         };
 
+        clearMarker= function () {
+          gmMarkers.forEach(function (marker) {
+            marker.setMap(null);
+          });
+          gmMarkers =[];
+        };
+
         encodedScripturesUrlParameters= function (bookId, chapter,verses, isJst) {
           if(bookId !== undefined && chapter !== undefined){
             let options = "";
@@ -194,7 +214,9 @@ const Scriptures=(function(){
 
         getScripturesCallback = function(chapterHtml){
             document.getElementById(DIV_SCRIPTURES).innerHTML=chapterHtml;
+
             // NOTE: SETUPMARKERS();
+            setupMarkers();
         };
 
         getScripturesFailure = function () {
@@ -411,6 +433,29 @@ const Scriptures=(function(){
               }
           }
         };
+        setupMarkers = function(){
+          if (gmMarkers.length > 0) {
+            clearMarker();
+          }
+
+          document.querySelectorAll("a[onclick^=\"showLocation(\"]").forEach(function(element){
+              let matches=LAT_LON_PARSER.exec(element.getAttribute("onclick"));
+              if(matches){
+                let placename=matches[INDEX_PLACENAME];
+                let latitude =matches [INDEX_LATITUDE];
+                let longitude =matches [INDEX_LONGITUDE];
+                let flag = matches[INDEX_FLAG];
+
+                if(flag !== ""){
+                    placename += ` ${flag}`;
+                }
+                addMarker(placename, latitude, longitude);
+              }
+
+          });
+
+        };
+
         titleForBookChapter = function (book, chapter) {
             //Return a string that describes this chapter useful when hovering for a tooltip//
             if(book !== undefined){
@@ -419,7 +464,7 @@ const Scriptures=(function(){
                 }
                 return book.tocName;
             }
-        }
+        };
 
         volumesGridContent = function (volumeId) {
             let gridContent = "";
