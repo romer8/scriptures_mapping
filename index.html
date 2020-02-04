@@ -13,8 +13,12 @@
   <link rel="manifest" href="site.webmanifest">
   <link rel="apple-touch-icon" href="icon.png">
   <!-- Favicon.ico in the root folder -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css?v=1.0">
+
   <script src="js/scriptures.js"></script>
+  <script src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerwithlabel/src/markerwithlabel.js"></script>
 
 </head>
 
@@ -32,6 +36,11 @@
   </div>
 
   <script type="text/javascript">
+      // CONSTANT DECLARATION FOR THE VIEWS AND ZOOMS //
+      const DEFAULT_VIEW_ALTITUTE =5000;
+      const DEFAULT_ZOOM_1 = 11;
+      const DEFAULT_ZOOM_2 = 12;
+      const DEFAULT_ZOOM_3 = 13;
       function ready(fn) {
           if (document.readyState != 'loading') {
               fn();
@@ -46,14 +55,33 @@
       });
       let map;
       function initMap (){
-        console.log("hola in inimap");
         map = new google.maps.Map(document.getElementById("map"), {
            center: {lat: 31.777444, lng: 35.234935},
            zoom: 8
         });
       };
+      //IMPLEMENTATION OF THE SHOW LOCATION FUNCTION //
+      function showLocation (geotagId, placename, latitude, longitude, viewLatitude, viewLongitude, viewTilt, viewRoll, viewAltitude, viewHeading){
+        let newCenter = {lat: latitude, lng: longitude};
+        let desiredZoom=Math.floor((viewAltitude));
+        console.log(desiredZoom);
+        map.setCenter(newCenter);
+        if(desiredZoom<= DEFAULT_VIEW_ALTITUTE){
+          console.log(DEFAULT_ZOOM_1);
+          map.setZoom(DEFAULT_ZOOM_1);
+        }
+        if(desiredZoom-DEFAULT_VIEW_ALTITUTE >= 1000){
+          console.log(DEFAULT_ZOOM_2);
+          map.setZoom(DEFAULT_ZOOM_2);
+        }
+        if(desiredZoom-DEFAULT_VIEW_ALTITUTE >= 2000){
+          console.log(DEFAULT_ZOOM_3);
+          map.setZoom(DEFAULT_ZOOM_3);
+        }
+      };
+//async defer
   </script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1UOfJQ52f89qzEETiG7uVhh-LwR_6pzs&callback=initMap" async defer></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1UOfJQ52f89qzEETiG7uVhh-LwR_6pzs&callback=initMap"></script>
 
 
 </body>
