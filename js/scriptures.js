@@ -17,7 +17,8 @@
     innerHTML, lat, length, lng, log, map, maps, maxBookId, minBookId,
     numChapters, onHashChanged, onerror, onload, open, parse, position, push,
     querySelectorAll, response, send, setMap, slice, split, status, title,
-    tocName
+    tocName,Point, labelOrigin, origin, url, icon, label, text, color,
+    fontSize,fontWeight, LatLngBounds, reduce
 */
 //MAKE A GLOBAL FOR NEXT CHAPTER, AND ANOTHER FOR PREVIOUS CHAPTERS
 const Scriptures=(function(){
@@ -48,11 +49,12 @@ const Scriptures=(function(){
        const REQUEST_GET= "GET";
        const REQUEST_STATUS_OK =200;
        const REQUEST_STATUS_ERROR = 400;
-       const TAG_VOLUME_HEADER = "h5";
-       const TAG_ICONS="i"
+       const TAG_VOLUME_HEADER = "h5" ;
+       const TAG_ICONS="i" ;
        const URL_BOOKS= "https://scriptures.byu.edu/mapscrip/model/books.php";
        const URL_SCRIPTURES = "https://scriptures.byu.edu/mapscrip/mapgetscrip.php";
        const URL_VOLUMES= "https://scriptures.byu.edu/mapscrip/model/volumes.php";
+       const URL_ICON ="https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png";
 
        /*-----------------------------------------------------------------
         *                  PRIVATE VARIABLE
@@ -105,15 +107,11 @@ const Scriptures=(function(){
 
 
         addMarker = function(placename, latitude, longitude){
-          let markerIcon = {
-            url: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png',
-            origin: new google.maps.Point(0, 0),
-            labelOrigin: new google.maps.Point(40,50),
-          };
+
           let marker = new google.maps.Marker({
               position: {lat: Number(latitude), lng: Number(longitude)},
               icon: {
-                  url:'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png' ,
+                  url:URL_ICON ,
                   labelOrigin: new google.maps.Point(15, 55)
               },
               label: {
@@ -600,12 +598,12 @@ const Scriptures=(function(){
                       let newLabel= gmMarkers[i].getTitle() + ", " + gmMarkers[j].getTitle();
                       let objectLabel= gmMarkers[i].getLabel();
 
-                      if(objectLabel.text.indexOf(gmMarkers[j].getTitle()) > -1) {
-                        objectLabel.text += ", " + gmMarkers[j].getTitle();
-                        gmMarkers[i].setLabel(objectLabel);
-                      }
-                      // objectLabel.text += ", " + gmMarkers[j].getTitle();
-                      // gmMarkers[i].setLabel(objectLabel);
+                      // if(objectLabel.text.indexOf(gmMarkers[j].getTitle()) > -1) {
+                      //   objectLabel.text += ", " + gmMarkers[j].getTitle();
+                      //   gmMarkers[i].setLabel(objectLabel);
+                      // }
+                      objectLabel.text += ", " + gmMarkers[j].getTitle();
+                      gmMarkers[i].setLabel(objectLabel);
 
                       indexPositions.push(j);
                       if(!indexPositions_delete.includes(i) && !indexPositions.includes(i)){
@@ -661,13 +659,6 @@ const Scriptures=(function(){
 
         return {
           init,
-          // initMap,
           onHashChanged,
         };
   }())
-
-// Scriptures.init_map();
-//Document.querySelectorAll(
-  //"a[onclick^=\"showLocation(\"]").forEach(function(element){
-//})"
-// /showlocation\(.*)
