@@ -97,48 +97,12 @@ const Scriptures=(function(){
         let setupMarkers;
         let titleForBookChapter;
         let volumesGridContent;
-        let createMarker;
 
        /*-----------------------------------------------------------------
         *                  PRIVATE METHODS
         */
 
-      // filterMarker = function (){
-      //     let filteredMarkers= gmMarkers.reduce(function (unique, o){
-      //           console.log(o);
-      //           if(!unique.some(obj => obj.getPosition().equals(o.getPosition()))) {
-      //               unique
-      //               unique.push(o);
-      //           }
-      //           return unique;
-      //     },[]);
-      //     return filteredMarkers;
-      //   };
 
-    createMarker= function (width, height, radius) {
-        var canvas, context;
-        canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        context = canvas.getContext("2d");
-        context.clearRect(0, 0, width, height);
-        context.fillStyle = "rgba(255,255,0,1)";
-        context.strokeStyle = "rgba(0,0,0,1)";
-        context.beginPath();
-        context.moveTo(radius, 0);
-        context.lineTo(width - radius, 0);
-        context.quadraticCurveTo(width, 0, width, radius);
-        context.lineTo(width, height - radius);
-        context.quadraticCurveTo(width, height, width - radius, height);
-        context.lineTo(radius, height);
-        context.quadraticCurveTo(0, height, 0, height - radius);
-        context.lineTo(0, radius);
-        context.quadraticCurveTo(0, 0, radius, 0);
-        context.closePath();
-        context.fill();
-        context.stroke();
-        return canvas.toDataURL();
-      }
 
         addMarker = function(placename, latitude, longitude){
           let markerIcon = {
@@ -149,64 +113,19 @@ const Scriptures=(function(){
           let marker = new google.maps.Marker({
               position: {lat: Number(latitude), lng: Number(longitude)},
               icon: {
-                  url: createMarker(25, 25, 4),
-                  labelOrigin: new google.maps.Point(55, 12)
+                  url:'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png' ,
+                  labelOrigin: new google.maps.Point(15, 55)
               },
               label: {
                 text: placename,
                 color: "#4c4c4c",
-                fontSize: "15px",
+                fontSize: "20px",
                 fontWeight: "bold"
               },
               map,
               title: placename,
               animation: google.maps.Animation.DROP
           });
-          console.log(gmMarkers.length);
-          // for(let i=0; i<gmMarkers.length; ++i){
-          //     if(gmMarkers[i].getPosition().equals(marker.getPosition())){
-          //       console.log("I am in the addition label");
-          //       let newLabel= gmMarkers[i].getTitle() + ", " + marker.getTitle();
-          //       let objectLabel= gmMarkers[i].getLabel();
-          //       objectLabel.text=newLabel;
-          //       gmMarkers[i].setLabel(objectLabel);
-          //     }
-          //     else{
-          //       gmMarkers.push(marker);
-          //     }
-          // }
-          // gmMarkers.forEach(function(markerIn){
-          //   if(markerIn.getPosition().equals(marker.getPosition())){
-          //     console.log("I am in the addition label");
-          //     let newLabel= markerIn.getTitle() + ", " + marker.getTitle();
-          //     let objectLabel= markerIn.getLabel();
-          //     objectLabel.text=newLabel;
-          //     markerIn.setLabel(objectLabel);
-          //   }
-          //   else{
-          //     gmMarkers.push(marker);
-          //   }
-          // });
-
-          // if(gmMarkers.length >= 1){
-          //   gmMarkers.forEach(function(markerIn){
-          //     if(markerIn.getPosition().equals(marker.getPosition())){
-          //       console.log("I am in the addition label");
-          //       let newLabel= markerIn.getTitle() + ", " + marker.getTitle();
-          //       let objectLabel= markerIn.getLabel();
-          //       objectLabel.text=newLabel;
-          //       markerIn.setLabel(objectLabel);
-          //     }
-          //     else{
-          //       gmMarkers.push(marker);
-          //     }
-          //   });
-          // }
-          //
-          // else{
-          //   console.log("I am here");
-          //   gmMarkers.push(marker);
-          // }
 
 
           gmMarkers.push(marker);
@@ -369,10 +288,7 @@ const Scriptures=(function(){
         getScripturesCallback = function(chapterHtml){
             document.getElementById(DIV_SCRIPTURES).innerHTML=chapterHtml;
 
-            // NOTE: SETUPMARKERS();
             setupMarkers();
-            // console.log(filterMarker());
-            console.log(gmMarkers);
 
             prevNext();
         };
@@ -406,7 +322,8 @@ const Scriptures=(function(){
         };
 
         htmlElement = function (tagName,content,classString,idString) {
-          if(idString !== undefined && classString !== undefined){ //addition
+
+          if(idString == undefined && classString == undefined){ //addition
             return `<${tagName}>${content}</${tagName}>`;
           }//addition
           if(classString !==undefined){
@@ -444,21 +361,14 @@ const Scriptures=(function(){
           return `<a${idString}${classString}${hrefString}>${contentString}</a>`;
         };
 
-        // initMap= function(){
-        //   console.log("hola in inimap");
-        //   map = new google.maps.Map(document.getElementById("map"), {
-        //      center: {lat: 31.778332, lng: 35.232113},
-        //      zoom: 10
-        //   });
-        // };
+
 
         init = function(callback){
           let booksLoaded=false;
           let volumesLoaded=false;
           // initMap();
           ajax(URL_BOOKS,function(data){
-                  // console.log("Loaded Books from Server");
-                  // console.log(data);
+
                   books=data;
                   booksLoaded=true;
                   if(volumesLoaded){
@@ -468,8 +378,7 @@ const Scriptures=(function(){
                 }
           );
           ajax(URL_VOLUMES,function(data){
-                  // console.log("Loaded Volumes from Server");
-                  // console.log(data);
+
                   volumes=data;
                   volumesLoaded=true;
                   if(booksLoaded){
@@ -493,7 +402,6 @@ const Scriptures=(function(){
 
         };
         navigateChapter = function(bookId, chapter){
-          console.log(previousChapter(bookId,chapter));
           ajax(encodedScripturesUrlParameters(bookId, chapter),getScripturesCallback,
               getScripturesFailure, true);
         };
@@ -569,7 +477,6 @@ const Scriptures=(function(){
               }
 
             }
-            console.log("The hash is " + location.hash);
 
         };
         previousChapter = function (bookId, chapter) {
@@ -609,8 +516,6 @@ const Scriptures=(function(){
             let chapter_id= arrayChapter[1];
             let volumeId =location.hash.slice(1).split(":")[0];
             let url="#"+volumeId+":"+book_id+":"+chapter_id;
-            console.log("cambiando atras");
-            console.log(url);
             window.location.hash=url
           }
         };
@@ -686,52 +591,41 @@ const Scriptures=(function(){
               }
           });
 
-          let indexPositions=[];
-          for (let i = 1; i < gmMarkers.length; i++) {
-            var firstMarker = gmMarkers[i - 1];
-            var secondMarker = gmMarkers[i];
-            console.log("second postion");
-            console.log(firstMarker.getPosition().equals(secondMarker.getPosition()));
+          let indexPositions = [];
+          let indexPositions_delete=[];
+          for(let i=0; i<gmMarkers.length; ++i){
+            for(let j=0; j< gmMarkers.length; ++j){
+                if((gmMarkers[i].getTitle() != gmMarkers[j].getTitle()) && (!indexPositions.includes(j))){
+                  if(gmMarkers[i].getPosition().equals(gmMarkers[j].getPosition())){
+                      let newLabel= gmMarkers[i].getTitle() + ", " + gmMarkers[j].getTitle();
+                      let objectLabel= gmMarkers[i].getLabel();
 
+                      if(objectLabel.text.indexOf(gmMarkers[j].getTitle()) > -1) {
+                        objectLabel.text += ", " + gmMarkers[j].getTitle();
+                        gmMarkers[i].setLabel(objectLabel);
+                      }
+                      // objectLabel.text += ", " + gmMarkers[j].getTitle();
+                      // gmMarkers[i].setLabel(objectLabel);
 
-            if(firstMarker.getPosition().equals(secondMarker.getPosition())) {
-              if(firstMarker.getTitle()!= secondMarker.getTitle()){
-                  console.log("holas");
-                  let newLabel= firstMarker.getTitle() + ", " + secondMarker.getTitle();
-                  let objectLabel= firstMarker.getLabel();
-                  objectLabel.text=newLabel
-                  firstMarker.setLabel(objectLabel);
-                  // console.log(firstMarker);
-                  indexPositions.push(i);
+                      indexPositions.push(j);
+                      if(!indexPositions_delete.includes(i) && !indexPositions.includes(i)){
+                        indexPositions_delete.push(i);
+                      }
+                  }
               }
             }
-          };
-          console.log(indexPositions);
+          }
+
+
           for(let i=0;i < gmMarkers.length; i++ ){
-            if(indexPositions.includes(i)){
+            if(indexPositions.includes(i) && !indexPositions_delete.includes(i)){
               gmMarkers[i].setMap(null);
             }
           };
 
-          // let filteredMarkers= gmMarkers.reduce(function (a, o){
-          //   console.log(gmMarkers);
-          //
-          //       console.log(a);
-          //       console.log(o);
-          //       if(a.getPosition().equals(o.getPosition())) {
-          //           let newLabel= a.getTitle() + ", " + o.getTitle();
-          //           let objectLabel= new google.maps.MarkerLabel({
-          //             text:newLabel
-          //           });
-          //           a.setLabel(objectLabel);
-          //           o.setMap(null);
-          //       }
-          //
-          // });
-          // console.log(filteredMarkers);
+
 
           changeZoom();
-          console.log(gmMarkers);
         };
 
         titleForBookChapter = function (book, chapter) {
